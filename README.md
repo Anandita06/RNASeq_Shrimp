@@ -1,3 +1,3 @@
 # Readme
 
-Repository for genomic variants from RNASeq data of P. monodon
+Repository for genomic variants analysis from RNASeq data of P. monodon
