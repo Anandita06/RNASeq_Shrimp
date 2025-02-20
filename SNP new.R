@@ -12,6 +12,12 @@ control_only_new <- anti_join(control_variants_new, survived_variants_new, by = 
 survived_only_new <- anti_join(survived_variants_new, control_variants_new, by = c("CHROM", "POS", "REF", "ALT")) 
 common_variants_new <- inner_join(control_variants_new, survived_variants_new, by = c("CHROM", "POS", "REF", "ALT"), suffix = c("_control", "_survived"))
 
+# Count variants in each category
+variant_counts_new <- data.frame(
+  Category = c("Control Only", "Survived Only", "Common"),
+  Count = c(nrow(control_only_new), nrow(survived_only_new), nrow(common_variants_new))
+)
+
 # Plot with labels and improved colors
 SNP_counts_barplot_new <- ggplot(variant_counts_new, aes(x = Category, y = Count, fill = Category)) +
   geom_bar(stat = "identity", width = 0.6, color = "black") +  # Subtle border for clarity
@@ -22,3 +28,107 @@ SNP_counts_barplot_new <- ggplot(variant_counts_new, aes(x = Category, y = Count
                                "Survived Only" = "#BF616A",  # Muted red
                                "Common" = "#A3BE8C")) +      # Subtle green
   theme(legend.position = "none")  # Hide legend (optional)
+
+# Save plot as PNG
+ggsave("SNP_counts_barplot_new.png", plot = SNP_counts_barplot, width = 8, height = 6, dpi = 300)
+
+
+# Display success message
+message("Plot saved successfully as: SNP_counts_barplot_new.png")
+
+# Display the plot in RStudio
+print(SNP_counts_barplot_new)
+
+# Merge SNPs from Control Group with Gene Data from gff file (keeping ANN)
+merged_control_new <- control_only_new %>%
+  rowwise() %>%
+  mutate(Gene_ID = list(genes_data$Gene_ID[which(genes_data$Gene_Start <= POS & 
+                                                   genes_data$Gene_End >= POS & 
+                                                   genes_data$CHROM_Gff == CHROM)])) %>%
+  unnest(cols = c(Gene_ID)) %>%
+  filter(!is.na(Gene_ID)) %>%
+  select(CHROM, POS, REF, ALT, ANN, Gene_ID)  # Keep ANN
+
+# Merge SNPs from Survived Group with Gene Data (keeping ANN)
+merged_survived_new <- survived_only_new %>%
+  rowwise() %>%
+  mutate(Gene_ID = list(genes_data$Gene_ID[which(genes_data$Gene_Start <= POS & 
+                                                   genes_data$Gene_End >= POS & 
+                                                   genes_data$CHROM_Gff == CHROM)])) %>%
+  unnest(cols = c(Gene_ID)) %>%
+  filter(!is.na(Gene_ID)) %>%
+  select(CHROM, POS, REF, ALT, ANN, Gene_ID)  # Keep ANN
+
+# save merged control and survived files in csv format
+write.csv(merged_control_new, "Unique_Control_SNPs.csv", row.names = FALSE)
+write.csv(merged_survived_new, "Unique_Survived_SNPs.csv", row.names = FALSE)
+message("✅ SNP tables saved as CSV files.")
+
+# Create SNP Distribution Table
+# SNP Distribution for Control Group (counting SNPs per gene)
+snp_distribution_control_new <- merged_control_new %>%
+  group_by(Gene_ID) %>%
+  summarise(SNP_count = n(),
+            Variant_Effects = paste(unique(ANN), collapse = ";")) %>%  # Preserve ANN information
+  mutate(SNP_bin = cut(SNP_count,
+                       breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, Inf),
+                       labels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+                                  "11-15", "16-20", "21-25", "26-30", ">30"),
+                       right = FALSE)) %>%
+  group_by(SNP_bin) %>%
+  summarise(Number_of_genes = n()) %>%
+  mutate(Genotype = "Control")
+
+# SNP Distribution for Survived Group (counting SNPs per gene)
+snp_distribution_survived_new <- merged_survived_new %>%
+  group_by(Gene_ID) %>%
+  summarise(SNP_count = n(),
+            Variant_Effects = paste(unique(ANN), collapse = ";")) %>%  # Preserve ANN information
+  mutate(SNP_bin = cut(SNP_count,
+                       breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, Inf),
+                       labels = c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+                                  "11-15", "16-20", "21-25", "26-30", ">30"),
+                       right = FALSE)) %>%
+  group_by(SNP_bin) %>%
+  summarise(Number_of_genes = n()) %>%
+  mutate(Genotype = "Survived")
+
+# Combine Both Groups for Final Plot
+snp_distribution_combined_new <- bind_rows(snp_distribution_control_new, snp_distribution_survived_new)
+
+# Plot SNP Distribution Per Gene
+# Create the bar plot
+snp_distribution_plot <- ggplot(snp_distribution_combined_new, aes(x = SNP_bin, y = Number_of_genes, fill = Genotype)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +  # Border for clarity
+  labs(title = "SNP Distribution per Gene (Control vs Survived)",
+       x = "Number of SNPs per Gene",
+       y = "Number of Genes") +
+  theme_minimal(base_size = 15) +  # Clean publication theme
+  scale_fill_manual(values = c("Control" = "#5E81AC", "Survived" = "#BF616A")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels
+
+# Save plot as PNG
+ggsave("SNPs_per_Gene_distribution.png", plot = snp_distribution_plot, width = 8, height = 6, dpi = 300)
+
+# Display success message
+message("✅ Plot saved successfully: SNPs_per_Gene_distributionp.png")
+
+# Display the plot in RStudio
+print(snp_plot)
+
+# Count High, Moderate, Low impact variants
+impact_counts <- merged_control_new %>%
+  mutate(Impact = case_when(
+    grepl("HIGH", ANN) ~ "High Impact",
+    grepl("MODERATE", ANN) ~ "Moderate Impact",
+    grepl("LOW", ANN) ~ "Low Impact",
+    TRUE ~ "Modifier"
+  )) %>%
+  group_by(Impact) %>%
+  summarise(Count = n())
+
+# Plot impact distribution
+ggplot(impact_counts, aes(x = Impact, y = Count, fill = Impact)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Variant Impact Distribution", x = "Impact Level", y = "Number of Variants")
