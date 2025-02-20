@@ -114,8 +114,9 @@ ggsave("SNPs_per_Gene_distribution.png", plot = snp_distribution_plot, width = 8
 message("✅ Plot saved successfully: SNPs_per_Gene_distributionp.png")
 
 # Display the plot in RStudio
-print(snp_plot)
+print(snp_distribution_plot)
 
+## Impact plots
 # Count High, Moderate, Low impact variants
 impact_counts <- merged_control_new %>%
   mutate(Impact = case_when(
@@ -128,7 +129,16 @@ impact_counts <- merged_control_new %>%
   summarise(Count = n())
 
 # Plot impact distribution
-ggplot(impact_counts, aes(x = Impact, y = Count, fill = Impact)) +
+variant_imapct_distribution_plot <- ggplot(impact_counts, aes(x = Impact, y = Count, fill = Impact)) +
   geom_bar(stat = "identity") +
   theme_minimal() +
   labs(title = "Variant Impact Distribution", x = "Impact Level", y = "Number of Variants")
+
+# Save plot as PNG
+ggsave("Control_unique_SNPs__impact_distribution.png", plot = variant_imapct_distribution_plot, width = 8, height = 6, dpi = 300)
+
+# Display success message
+message("✅ Plot saved successfully: Scontrol_NPs_pimpact _istributionp.png")
+
+# Display the plot in RStudio
+print(variant_imapct_distribution_plot)
