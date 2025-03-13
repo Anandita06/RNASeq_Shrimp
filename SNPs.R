@@ -98,7 +98,7 @@ gff_compressed <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/GCF_015228065.2_NS
 gff_unzipped <- sub(".gz$", "", gff_compressed)  # Remove .gz extension
 if (!file.exists(gff_unzipped)) {
   gunzip(gff_compressed, overwrite = FALSE)
-  message("✅ GFF file unzipped successfully.")
+  message("GFF file unzipped successfully.")
 }
 
 # Load GFF file
@@ -144,7 +144,7 @@ merged_survived_new <- survived_only_new %>%
 # save merged control and survived files in csv format
 write.csv(merged_control_new, "Unique_Control_SNPs.csv", row.names = FALSE)
 write.csv(merged_survived_new, "Unique_Survived_SNPs.csv", row.names = FALSE)
-message("✅ SNP tables saved as CSV files.")
+message("SNP tables saved as CSV files.")
 
 # Step5: Create SNP Distribution Table
 # SNP Distribution for Control Group (counting SNPs per gene)
@@ -193,7 +193,7 @@ snp_distribution_plot <- ggplot(snp_distribution_combined_new, aes(x = SNP_bin, 
 ggsave("SNPs_per_Gene_distribution.png", plot = snp_distribution_plot, width = 8, height = 6, dpi = 300)
 
 # Display success message
-message("✅ Plot saved successfully: SNPs_per_Gene_distributionp.png")
+message("Plot saved successfully: SNPs_per_Gene_distributionp.png")
 
 # Display the plot in RStudio
 print(snp_distribution_plot)
@@ -221,7 +221,7 @@ variant_imapct_distribution_plot <- ggplot(impact_counts, aes(x = Impact, y = Co
 ggsave("Control_unique_SNPs__impact_distribution.png", plot = variant_imapct_distribution_plot, width = 8, height = 6, dpi = 300)
 
 # Display success message
-message("✅ Plot saved successfully: Scontrol_NPs_pimpact _istributionp.png")
+message("Plot saved successfully: Scontrol_NPs_pimpact _istributionp.png")
 
 # Display the plot in RStudio
 print(variant_imapct_distribution_plot)
