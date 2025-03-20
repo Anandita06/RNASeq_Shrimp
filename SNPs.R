@@ -21,9 +21,9 @@ read_vcf_data <- function(file_path) {
   return(data)
 }
 
-# File paths
-control_vcf_path <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/NEW_DATA-20250215T055250Z-001/NEW_DATA/CONTROL_36_SNP_annotation/36_SNP.ann.vcf"
-survived_vcf_path <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/NEW_DATA-20250215T055250Z-001/NEW_DATA/SURVIVED_35_SNP_annotation/35_SNP.ann.vcf"
+# File paths (give your original file path)
+control_vcf_path <- "file_path_36_SNP.ann.vcf"
+survived_vcf_path <- "file_path_35_SNP.ann.vcf"
 
 # Read and extract data
 control_data <- read_vcf_data(control_vcf_path)
@@ -92,7 +92,7 @@ library(R.utils)
 
 ## Step2: Unzip and Load the GFF File
 # Path to the GFF file (Compressed)
-gff_compressed <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/GCF_015228065.2_NSTDA_Pmon_1_genomic.gff.gz"
+gff_compressed <- "GCF_015228065.2_NSTDA_Pmon_1_genomic.gff.gz" # give original file path
 
 # Unzip the GFF file if not already unzipped
 gff_unzipped <- sub(".gz$", "", gff_compressed)  # Remove .gz extension
