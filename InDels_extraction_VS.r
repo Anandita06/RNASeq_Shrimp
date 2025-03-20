@@ -25,8 +25,8 @@ read_vcf_data_indels <- function(file_path) {
 }
 
 # File paths
-control_vcf_path_indels <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/NEW_DATA-20250215T055250Z-001/NEW_DATA/CONTROL_36_INDEL_annotation/36_INDEL.ann.vcf"
-survived_vcf_path_indels <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/NEW_DATA-20250215T055250Z-001/NEW_DATA/SURVIVED_35_INDEL_annotation/35_INDEL.ann.vcf"
+control_vcf_path_indels <- "file_path_36_INDEL.ann.vcf"
+survived_vcf_path_indels <- "file_path_35_INDEL.ann.vcf"
 
 # Read and extract data
 control_data_indels <- read_vcf_data_indels(control_vcf_path_indels)
@@ -116,6 +116,12 @@ generate_variant_counts <- function(control, survived, title, filename) {
     Count = c(nrow(control_only), nrow(survived_only), nrow(common_variants))
   )
   
+  # Save classified copies
+  write.csv(control_only, gzfile("unique_control_indels.csv.gz"), row.names = FALSE)
+  write.csv(survived_only, gzfile("unique_survived_indels.csv.gz"), row.names = FALSE)
+  head(control_only)
+  head(survived_only)
+  
   plot <- ggplot(variant_counts, aes(x = Category, y = Count, fill = Category)) +
     geom_bar(stat = "identity", width = 0.6, color = "black") +
     geom_text(aes(label = Count), vjust = -0.5, size = 5) +
@@ -128,6 +134,7 @@ generate_variant_counts <- function(control, survived, title, filename) {
   message("Plot saved successfully as: ", filename)
   print(plot)
 }
+
 
 # Generate plots for Insertions, Deletions, and Mixed Variants
 insertions_count_plot <-generate_variant_counts(control_insertions, survived_insertions, "Unique and Common Insertions Count", "Insertions_counts_barplot.png")
