@@ -3,12 +3,12 @@ library(dplyr)
 library(readr)
 
 # Define the list of files
-files <- c("C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_control_indels_insertions.csv.gz",
-           "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_control_indels_deletions.csv.gz",
-           "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_control_indels_mixed.csv.gz",
-           "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_survived_indels_insertions.csv.gz",
-           "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_survived_indels_deletions.csv.gz",
-           "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/RNASeq_Shrimp/unique_survived_indels_mixed.csv.gz")
+files <- c("file_path/unique_control_indels_insertions.csv.gz",
+           "file_path/unique_control_indels_deletions.csv.gz",
+           "file_path/unique_control_indels_mixed.csv.gz",
+           "file_path/unique_survived_indels_insertions.csv.gz",
+           "file_path/unique_survived_indels_deletions.csv.gz",
+           "file_path/unique_survived_indels_mixed.csv.gz")
 
 # Function to read, process, and merge files
 process_and_merge_indels <- function(file_list) {
@@ -55,7 +55,7 @@ file.copy("Merged_Control_Indels.csv", "Merged_Control_Indels.csv.gz")
 file.copy("Merged_Survived_Indels.csv", "Merged_Survived_Indels.csv.gz")
 
 # Step 2: Read the GFF file (assuming tab-delimited format)
-gff_file <- "C:/Users/hp/Downloads/Shrimp/RNASeq_Shrimp/GCF_015228065.2_NSTDA_Pmon_1_genomic.gff"  # Update with your actual GFF file path
+gff_file <- "File_path/GCF_015228065.2_NSTDA_Pmon_1_genomic.gff"  # Update with your actual GFF file path
 
 # Assuming GFF format: Chromosome (col 1), Start (col 4), End (col 5), Gene_ID (from attributes in col 9)
 gff_data <- read.delim(gff_file, header = FALSE, comment.char = "#", sep = "\t")
