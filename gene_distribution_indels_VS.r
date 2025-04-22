@@ -45,7 +45,8 @@ process_and_merge_indels <- function(file_list) {
 # Run the function with your file list
 process_and_merge_indels(files)
 
-**
+***
+
 # Load required libraries
 library(ggplot2)
 library(tidyr)
@@ -66,11 +67,11 @@ gff_data <- gff_data %>%
   mutate(Gene_ID = sub(".*ID=([^;]+).*", "\\1", V9)) %>%
   select(CHROM_Gff = V1, Gene_Start = V4, Gene_End = V5, Gene_ID)
 
-# ---- Step 2: Read variant data ----
+# Step 3: Read variant data
 control_data <- read_csv("Merged_Control_Indels.csv")
 survived_data <- read_csv("Merged_Survived_Indels.csv")
 
-# ---- Step 3: Function to merge variants with GFF annotations ----
+# Step 4: Function to merge variants with GFF annotations
 merge_with_gff <- function(variant_data, genes_data) {
   merged_data <- variant_data %>%
     left_join(genes_data, by = c("CHROM" = "CHROM_Gff")) %>%
@@ -88,7 +89,7 @@ gff_merged_survived_indels <- merge_with_gff(survived_data, gff_data)
   write_csv(gff_merged_control_indels, "gff_merged_control_indels.csv")
   write_csv(gff_merged_survived_indels, "gff_merged_survived_indels.csv")
 
-# ---- Step 4: Function to calculate Indel distribution per gene ----
+# Step 5: Function to calculate Indel distribution per gene
 calculate_distribution <- function(merged_data, genotype) {
   indel_distribution <- merged_data %>%
     group_by(Gene_ID, Indel_Type) %>%
@@ -109,16 +110,15 @@ calculate_distribution <- function(merged_data, genotype) {
   return(indel_distribution)
 }
 
-# ---- Step 5: Calculate Indel Distribution ----
+# Step 6: Calculate Indel Distribution
 indel_distribution_control <- calculate_distribution(gff_merged_control_indels, "Control")
 indel_distribution_survived <- calculate_distribution(gff_merged_survived_indels, "Survived")
 
-# revised part
-#third
+# revised part (Needs fixing)
 library(ggplot2)
 library(dplyr)
 
-# ---- Step 6: Define Colors ----
+# Step 7: Define Colors
 color_palette <- c("Insertion_Control" = "#1F78B4",   # Dark Blue (Control)
                    "Insertion_Survived" = "#A6CEE3",  # Light Blue (Survived)
                    "Deletion_Control" = "#E31A1C",   # Dark Red (Control)
@@ -126,11 +126,11 @@ color_palette <- c("Insertion_Control" = "#1F78B4",   # Dark Blue (Control)
                    "Mixed_Control" = "#33A02C",      # Dark Green (Control)
                    "Mixed_Survived" = "#B2DF8A")     # Light Green (Survived)
 
-# ---- Step 7: Modify Data for Custom Fill Mapping ----
+# Step 8: Modify Data for Custom Fill Mapping
 indel_distribution_combined <- indel_distribution_combined %>%
   mutate(Fill_Group = paste(Indel_Type, Genotype, sep = "_"))  # Create unique fill categories
 
-# ---- Step 8: Plot Stacked Bar Chart with Colors & Counts ----
+# Step 9: Plot Stacked Bar Chart with Colors & Counts
 indel_distribution_plot <- ggplot(indel_distribution_combined, 
                                   aes(x = Indel_bin, y = Number_of_genes, fill = Fill_Group)) +
   geom_bar(stat = "identity", position = "stack", color = "black") +  # Stacked bars with border
